@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/syphoxy/go-twitch/twitch"
 	"log"
+	"math"
 	"net/http"
 	"os"
 )
@@ -41,7 +42,18 @@ func main() {
 		log.Fatal(err)
 	}
 
+	displayNameLen := 0
 	for _, s := range games.Streams {
-		fmt.Printf("%8d %25s %s\n", s.Viewers, s.Channel.DisplayName, s.Channel.Status)
+		length := len(s.Channel.DisplayName)
+		if length > displayNameLen {
+			displayNameLen = length
+		}
+	}
+
+	viewersLen := int(math.Ceil(math.Log(float64(games.Streams[0].Viewers)) / math.Log(10)))
+	streamFmt := fmt.Sprintf("  %%-%ds %%%dd %%s\n", displayNameLen, viewersLen)
+
+	for _, s := range games.Streams {
+		fmt.Printf(streamFmt, s.Channel.DisplayName, s.Viewers, s.Channel.Status)
 	}
 }
