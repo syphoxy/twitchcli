@@ -12,26 +12,21 @@ import (
 
 func main() {
 	client := twitch.NewClient(&http.Client{})
-
 	var game string
 	var limit int
-
 	flag.StringVar(&game, "g", "", "Game")
 	flag.IntVar(&limit, "l", 25, "Limit")
 	flag.Parse()
-
 	if limit <= 0 {
 		os.Exit(0)
 	}
-
 	if limit > 100 {
 		fmt.Println("Limit must be a value between 0 and 100")
 		os.Exit(1)
 	}
-
-	options := twitch.ListOptions{}
-	options.Limit = limit
-
+	options := twitch.ListOptions{
+		Limit: limit,
+	}
 	if game != "" {
 		options.Game = game
 	}
