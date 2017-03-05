@@ -30,25 +30,30 @@ func main() {
 	if game != "" {
 		options.Game = game
 	}
-
-	games, err := client.Streams.List(&options)
-
+	followed, err := client.Streams.Followed(&options)
 	if err != nil {
 		log.Fatal(err)
 	}
+	streams, err := client.Streams.List(&options)
+	if err != nil {
+		log.Fatal(err)
+	}
+	RenderList(followed.Streams)
+	fmt.Println("")
+	RenderList(streams.Streams)
+}
 
-	displayNameLen := 0
-	for _, s := range games.Streams {
-		length := len(s.Channel.DisplayName)
-		if length > displayNameLen {
-			displayNameLen = length
+func RenderList(list []twitch.StreamS) {
+	nameLen := 0
+	for _, s := range list {
+		length := len(s.Channel.Name)
+		if length > nameLen {
+			nameLen = length
 		}
 	}
-
-	viewersLen := int(math.Ceil(math.Log(float64(games.Streams[0].Viewers)) / math.Log(10)))
-	streamFmt := fmt.Sprintf("  %%-%ds %%%dd %%s\n", displayNameLen, viewersLen)
-
-	for _, s := range games.Streams {
-		fmt.Printf(streamFmt, s.Channel.DisplayName, s.Viewers, s.Channel.Status)
+	viewersLen := int(math.Ceil(math.Log(float64(list[0].Viewers)) / math.Log(10)))
+	streamFmt := fmt.Sprintf("%%-%ds %%%dd %%s\n", nameLen, viewersLen)
+	for _, s := range list {
+		fmt.Printf(streamFmt, s.Channel.Name, s.Viewers, s.Channel.Status)
 	}
 }
